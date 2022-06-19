@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 
-spark = SparkSession.builder.appName('Q4').getOrCreate()
+spark = SparkSession.builder.appName('Q1').getOrCreate()
 
 # Importando os dados
 path_instance_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/instance_events/*.csv"
@@ -27,4 +27,4 @@ df_instance_events = spark.read.csv(path_instance_events, schema = instance_sche
 
 #  Como é a requisição de recursos computacionais (memória e CPU) do cluster durante o tempo?
 
-df_instance_events.filter(df_instance_events.resource_request.cpus )
+df_instance_events.filter(df_instance_events.resource_request.cpus)

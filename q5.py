@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 
-spark = SparkSession.builder.appName('Q4').getOrCreate()
+spark = SparkSession.builder.appName('Q5').getOrCreate()
 
 # Importando os dados
 path_instance_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/instance_events/*.csv"
