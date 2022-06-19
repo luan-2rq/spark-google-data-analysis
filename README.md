@@ -1,2 +1,2 @@
 # spark-google-data-analysis
-Google server data analysed using spark.
+Google Borg's data analysis made using spark. Google Borg is the system responsable for managing the Google's clusters.
