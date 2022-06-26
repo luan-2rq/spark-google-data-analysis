@@ -63,37 +63,33 @@ monitoring_tier_instance = df_instance_events.filter(df_instance_events.priority
 
 # requisição de recursos computacionais de cada categoria
 
-def reqRecursos(category):
+def reqRecursos(category, category_name):
     ## cpus
-    describe_cpus = category.describe('resource_request_cpus').collect()
-    variance_cpus = category.select(F.variance('resource_request_cpus')).collect()
-    variance2_cpus = category.agg({'resource_request_cpus': 'variance'}).collect()
-    
-    print(f'\033[93mCategory: {category}\033[0m')
-    print(f'\033[91mCPUS Descrição cpus: {describe_cpus} \033[0m')
-    print(f'\033[91mCPUS Variancia cpus: {variance_cpus} \033[0m')
-    print(f'\033[91mCPUS Variancia cpus: {variance2_cpus} \033[0m')
+    print(f'Category {category_name}:')
+
+    print("\nCPU:")
+    describe_cpus = category.describe('resource_request_cpus').show()
+    variance_cpus = category.select(F.variance('resource_request_cpus')).show()
 
     ##  memory
-    describe_memory = category.describe('resource_request_memory').collect()
-    variance_memory = category.select(F.variance('resource_request_memory')).collect()
-    variance2_memory = category.agg({'resource_request_memory': 'variance'}).collect()
-
-    print(f'\033[94mMemória Descrição memory: {describe_memory} \033[0m')
-    print(f'\033[94mMemória Variancia memory: {variance_memory} \033[0m')
-    print(f'\033[94mMemória Variancia memory: {variance2_memory} \033[0m')
+    print("\nMemory:")
+    describe_memory = category.describe('resource_request_memory').show()
+    variance_memory = category.select(F.variance('resource_request_memory')).show()
+    variance2_memory = category.agg({'resource_request_memory': 'variance'}).show()
     
-reqRecursos(free_tier_instance)
-reqRecursos(best_effort_instance)
-reqRecursos(mid_tier_instance)
-reqRecursos(monitoring_tier_instance)
-reqRecursos(production_tier_instance)
+    print("\n\n")
+
+reqRecursos(free_tier_instance, "free_tier")
+reqRecursos(best_effort_instance, "best_effort")
+reqRecursos(mid_tier_instance, "mid_tier")
+reqRecursos(monitoring_tier_instance, "monitoring_tier")
+reqRecursos(production_tier_instance, "production_tier")
 
 
 # frequência de submissão de cada categoria
 
 
-def submit_category(category):
+def submit_category(category, category_name):
     jobs_submetidos = category.filter(category.type == 0)
 
     jobs_submetidos_count = jobs_submetidos.count()
@@ -104,13 +100,14 @@ def submit_category(category):
     time_interval_tier = (last_job_submit - first_job_submit)
 
     average_jobs_submited = jobs_submetidos_count / (time_interval_tier / 3600)
-    
-    print(f'\033[93mCategory: {category}\033[0m')
-    print(f"\033[93mAverage jobs submited per hour: {average_jobs_submited}\033[0m")
+
+    print(f'Category: {category_name}')
+    print(f'Average jobs submited per hour: {average_jobs_submited}')
+    print("\n")
 
 
-submit_category(free_tier)
-submit_category(best_effort)
-submit_category(mid_tier)
-submit_category(monitoring_tier)
-submit_category(production_tier)
+submit_category(free_tier, "free_tier")
+submit_category(best_effort, "best_effort")
+submit_category(mid_tier, "mid_tier")
+submit_category(monitoring_tier, "monitoring_tier")
+submit_category(production_tier, "production_tier")
