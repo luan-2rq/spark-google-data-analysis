@@ -49,15 +49,21 @@ for i in range(n_intervals):
     #acrescenta a média do intervalo final e o intervalo inicial em horas
     interval_average_array.append(((((i+1)*interval) + (i*interval)) / 2) / 3600)
     #acrescenta o resultado final do agrupamento de uso de CPU baseado no intevalo acima
-    cpu_request_means_over_time.append(df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_cpus': 'avg'}).collect()[0]['avg(resource_request_cpus)'])
-    memory_request_means_over_time.append(df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_memory': 'avg'}).collect()[0]['avg(resource_request_memory)'])
+    current_cpu_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_cpus': 'avg'}).collect()[0]['avg(resource_request_cpus)']
+    current_memory_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_memory': 'avg'}).collect()[0]['avg(resource_request_memory)']
+    if current_cpu_request_avg != None:
+        cpu_request_means_over_time.append(current_cpu_request_avg)
+    if current_memory_request_avg != None:
+        memory_request_means_over_time.append(current_memory_request_avg)
     print(f"Average {i}: {cpu_request_means_over_time[i]}")
 
+print(cpu_request_means_over_time)
+print(memory_request_means_over_time)
 #plotando um gráfico e exibindo o resultado
 plt.title("Uso de CPU/Memory do cluster")
 plt.xlabel("Tempo")
 plt.ylabel("Média de uso de CPU/Memory")
-plt.plot(interval_average_array, cpu_request_means_over_time, "CPU")
-plt.plot(interval_average_array, memory_request_means_over_time, "Memory")
+plt.plot(interval_average_array, cpu_request_means_over_time, label = "CPU")
+plt.plot(interval_average_array, memory_request_means_over_time, label = "Memory")
 plt.show()
 
