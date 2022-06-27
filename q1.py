@@ -28,6 +28,7 @@ instance_schema = StructType([
 df_instance_events = spark.read.csv(path_instance_events, schema = instance_schema, header=True, sep=",") 
 df_instance_events = df_instance_events.withColumnRenamed("resource_request.cpus", "resource_request_cpus")
 df_instance_events = df_instance_events.withColumnRenamed("resource_request.memory", "resource_request_memory")
+df_instance_events = df_instance_events.filter(df_instance_events.type == 3)
 
 #  Como é a requisição de recursos computacionais (memória e CPU) do cluster durante o tempo?
 min_time = 0
@@ -35,7 +36,7 @@ print(f"Tempo minimo: {min_time}")
 max_time = df_instance_events.agg({'time': 'max'}).collect()[0]['max(time)']
 print(f"Tempo maximo: {max_time}")
 
-n_intervals = 10
+n_intervals = 14
 interval = (max_time - min_time) / n_intervals
 
 cpu_request_means_over_time = []
@@ -55,12 +56,12 @@ for i in range(n_intervals):
     current_cpu_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_cpus': 'avg'}).collect()[0]['avg(resource_request_cpus)']
     current_memory_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_memory': 'avg'}).collect()[0]['avg(resource_request_memory)']
     if current_cpu_request_avg != None:
-        cpu_request_means_over_time.append(current_cpu_request_avg)
+        cpu_request_means_over_time.append(round(current_cpu_request_avg, 5))
     else:
         cpu_request_means_over_time.append(0)
     print(f"Average {len(cpu_request_means_over_time)-1}: {cpu_request_means_over_time[len(cpu_request_means_over_time)-1]}")
     if current_memory_request_avg != None:
-        memory_request_means_over_time.append(current_memory_request_avg)
+        memory_request_means_over_time.append(round(current_memory_request_avg, 5))
     else:
         memory_request_means_over_time.append(0)
 
@@ -82,17 +83,39 @@ for i in range(n_intervals):
 # ax.legend(labels=['CPU', 'Memory'])
 # plt.show()
 
-# Make a random dataset:
-y_pos = np.arange(len(intervals))
+x = np.arange(len(intervals))  # the label locations
+width = 0.35  # the width of the bars
 
-# Create bars
-plt.barh(y_pos, cpu_request_means_over_time)
+fig, ax = plt.subplots()
 
-# Create names on the x-axis
-plt.yticks(y_pos, intervals)
+rects1 = ax.barh(x - width/2, cpu_request_means_over_time, width, label='CPU')
+rects2 = ax.barh(x + width/2, memory_request_means_over_time, width, label='Memory')
 
-# Show graphic
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax.set_ylabel('Time Intervals')
+ax.set_xlabel('CPU and Memory requests average')
+ax.set_title('CPU and Memory requests average over time')
+ax.set_yticks(x, intervals)
+ax.legend()
+
+ax.bar_label(rects1, padding=3)
+ax.bar_label(rects2, padding=3)
+
+fig.tight_layout()
+
 plt.show()
+
+# Make a random dataset:
+# y_pos = np.arange(len(intervals))
+
+# # Create bars
+# plt.barh(y_pos, cpu_request_means_over_time)
+
+# # Create names on the x-axis
+# plt.yticks(y_pos, intervals)
+
+# # Show graphic
+# plt.show()
 
 # print(cpu_request_means_over_time)
 # print(memory_request_means_over_time)
