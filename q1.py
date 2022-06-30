@@ -36,7 +36,7 @@ print(f"Tempo minimo: {min_time}")
 max_time = df_instance_events.agg({'time': 'max'}).collect()[0]['max(time)']
 print(f"Tempo maximo: {max_time}")
 
-n_intervals = 14
+n_intervals = 21
 interval = (max_time - min_time) / n_intervals
 
 cpu_request_means_over_time = []
@@ -50,18 +50,18 @@ for i in range(n_intervals):
     print(f"Intervalo Médio: {((((i+1)*interval) + (i*interval)) / 2)}")
     """
     #acrescenta a média do intervalo final e o intervalo inicial em horas
-    current_interval = f"{round((i+1)*interval / 3600)} horas : {round((i*interval)/3600)} horas"
+    current_interval = f"Interval {i+1}"
     intervals.append(current_interval)#((((i+1)*interval) + (i*interval)) / 2) / 3600)
     #acrescenta o resultado final do agrupamento de uso de CPU baseado no intevalo acima
     current_cpu_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_cpus': 'avg'}).collect()[0]['avg(resource_request_cpus)']
     current_memory_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_memory': 'avg'}).collect()[0]['avg(resource_request_memory)']
     if current_cpu_request_avg != None:
-        cpu_request_means_over_time.append(round(current_cpu_request_avg, 5))
+        cpu_request_means_over_time.append(current_cpu_request_avg)
     else:
         cpu_request_means_over_time.append(0)
     print(f"Average {len(cpu_request_means_over_time)-1}: {cpu_request_means_over_time[len(cpu_request_means_over_time)-1]}")
     if current_memory_request_avg != None:
-        memory_request_means_over_time.append(round(current_memory_request_avg, 5))
+        memory_request_means_over_time.append(current_memory_request_avg)
     else:
         memory_request_means_over_time.append(0)
 
@@ -83,28 +83,35 @@ for i in range(n_intervals):
 # ax.legend(labels=['CPU', 'Memory'])
 # plt.show()
 
-x = np.arange(len(intervals))  # the label locations
-width = 0.35  # the width of the bars
+# x = np.arange(len(intervals))  # the label locations
+# width = 1  # the width of the bars
 
-fig, ax = plt.subplots()
+# fig, ax = plt.subplots()
 
-rects1 = ax.barh(x - width/2, cpu_request_means_over_time, width, label='CPU')
-rects2 = ax.barh(x + width/2, memory_request_means_over_time, width, label='Memory')
+# rects1 = ax.bar(x, cpu_request_means_over_time, width, label='CPU', color='g')
+# rects2 = ax.bar(x, memory_request_means_over_time, width, label='Memory', bottom=cpu_request_means_over_time, color='b')
 
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Time Intervals')
-ax.set_xlabel('CPU and Memory requests average')
-ax.set_title('CPU and Memory requests average over time')
-ax.set_yticks(x, intervals)
-ax.legend()
+# # Add some text for labels, title and custom x-axis tick labels, etc.
+# ax.set_ylabel('CPU and Memory requests average')
+# ax.set_xlabel('Time Intervals')
+# ax.set_title('CPU and Memory Requests Average Over Time')
+# ax.set_xticks(x, intervals)
+# plt.xticks(rotation=90)
+# ax.legend()
 
-ax.bar_label(rects1, padding=3)
-ax.bar_label(rects2, padding=3)
+# ax.bar_label(rects1, padding=3)
+# ax.bar_label(rects2, padding=3)
 
-fig.tight_layout()
+df = pd.DataFrame({ 
+    'Intervalos de Tempo': intervals, 
+    'Media(CPU Request)': cpu_request_means_over_time, 
+    'Media(Memory Request)': memory_request_means_over_time 
+}) 
+
+ax = df.plot(x="Intervalos de Tempo", y="Media(CPU Request)", kind="bar")
+df.plot(x="Intervalos de Tempo", y="Media(Memory Request)", kind="bar", ax=ax, color='orange')
 
 plt.show()
-
 # Make a random dataset:
 # y_pos = np.arange(len(intervals))
 
