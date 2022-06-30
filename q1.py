@@ -3,7 +3,6 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 spark = SparkSession.builder.appName('Q1').getOrCreate()

@@ -50,4 +50,6 @@ df = pd.DataFrame({
 
 ax = df.plot(x="Tipos", y="Frequencia", kind="bar", color='red')
 
+plt.ticklabel_format(style='plain')
+
 plt.show()

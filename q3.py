@@ -34,4 +34,6 @@ time_interval_jobs = (last_job_submit - first_job_submit)
 
 average_jobs_submited = jobs_submetidos_count / (time_interval_jobs / 3600)
 
+df_collection_events.describe('type').show()
+
 print(f"Average jobs submited per hour: {average_jobs_submited}")
