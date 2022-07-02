@@ -5,7 +5,7 @@ Análise de traços de execução do Google Borg feita usando Apache Spark. Goog
 
 Como pré-requisitos para rodar o projeto é necessário possuir o Python e o Java instalados. Idealmente a versão do Java baixada deve ser a 11 e a versão do python atualizada. Caso necessário, as variáveis de ambiente do java e python devem ser configuradas de acordo e predefinidas na variável path, para que assim os comandos do java e python sejam reconhecidos diretamente em qualquer pasta no terminal do Linux.
 
-## Instalações
+## Instalações - Linux
 
 * Dependências 
 
@@ -14,7 +14,7 @@ pip3 install -r requirements.txt
 python3 -m pip install -r requirements.txt
 Caso mesmo assim você ainda não consiga rodar o pip, recomendamos que acesse essa página sobre ambiente virtual utilizando pip e tente novamente.
 
-* Spark 
+* Spark - Linux
 
 Será necessário baixar o Spark para assim conseguir utilizar a biblioteca pyspark. O spark pode ser baixado através da seguinte página. Utilizamos da versão 3.2.1 (Jan 26 2022) do spark, porém a versão mais recente deve funcionar também.
 Após descompactar o Spark, será necessário configurar o caminho do spark na variável de ambiente path para que assim ele seja reconhecido pelo pyspark.
