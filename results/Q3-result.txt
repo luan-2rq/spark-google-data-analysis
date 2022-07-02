@@ -1,0 +1,5 @@
+### Q3 Result ###
+
+    A quantidade de jobs submetidas foi: 175098
+
+    Media de jobs submetidos por hora: 0.2935414154888924

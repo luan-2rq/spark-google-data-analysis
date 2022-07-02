@@ -6,7 +6,8 @@ import pyspark.sql.functions as F
 from pyspark.sql.types import *
 
 spark = SparkSession.builder.appName('Q7').getOrCreate()
-# Importando os dados
+
+# Caminho dos dados
 path_instance_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/instance_events/*.csv"
 
 #Configurando Schema
@@ -25,7 +26,7 @@ instance_schema = StructType([
 # dataframe com dados dos eventos das tarefas
 df_instance_events = spark.read.csv(path_instance_events, schema = instance_schema, header=True, sep=",") 
 
-##Quantos eventos de cada tipo são disparados para as tarefas?
+##### Quantos eventos de cada tipo são disparados para as tarefas? #####
 type_counts = [0]*11
 types = []*11
 
@@ -43,13 +44,16 @@ for i in range(11):
 print(type_counts)
 print(types)
 
-df = pd.DataFrame({
-    'Tipos': types, 
-    'Frequencia': type_counts
-}) 
+width = 0.5
 
-ax = df.plot(x="Tipos", y="Frequencia", kind="bar", color='red')
+fig, ax = plt.subplots()
 
-plt.ticklabel_format(style='plain')
+ax.bar(types, type_counts, width, label='Frequência', color='red')
 
+ax.set_ylabel('Frequência')
+ax.set_xlabel('Tipos')
+ax.legend()
+
+plt.ticklabel_format(style='plain', axis='y')
+plt.xticks(rotation = 90)
 plt.show()

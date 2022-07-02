@@ -5,9 +5,8 @@ from pyspark.sql.types import *
 
 spark = SparkSession.builder.appName('Q2').getOrCreate()
 
-# Importando os dados da coleção
+# Caminho dos dados
 path_collection_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/collection_events/*.csv"
-# Importando os dados da instância
 path_instance_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/instance_events/*.csv"
 
 #Configurando Schema
@@ -38,8 +37,8 @@ df_collection_events = spark.read.csv(path_collection_events, schema = collectio
 df_instance_events = spark.read.csv(path_instance_events, schema = instance_schema, header=True, sep=",")
 df_instance_events = df_instance_events.withColumnRenamed("resource_request.cpus", "resource_request_cpus")
 df_instance_events = df_instance_events.withColumnRenamed("resource_request.memory", "resource_request_memory")
-#As diversas categorias de jobs possuem características diferentes 
-#(requisição de recursos computacionais, frequência de submissão, etc.)?
+
+##### As diversas categorias de jobs possuem características diferentes (requisição de recursos computacionais, frequência de submissão, etc.)? #####
 
 df_collection_events.filter
 
@@ -68,14 +67,14 @@ def reqRecursos(category, category_name):
     print(f'Category {category_name}:')
 
     print("\nCPU:")
-    describe_cpus = category.describe('resource_request_cpus').show()
-    variance_cpus = category.select(F.variance('resource_request_cpus')).show()
+    category.describe('resource_request_cpus').show()
+    category.select(F.variance('resource_request_cpus')).show()
 
     ##  memory
     print("\nMemory:")
-    describe_memory = category.describe('resource_request_memory').show()
-    variance_memory = category.select(F.variance('resource_request_memory')).show()
-    variance2_memory = category.agg({'resource_request_memory': 'variance'}).show()
+    category.describe('resource_request_memory').show()
+    category.select(F.variance('resource_request_memory')).show()
+    category.agg({'resource_request_memory': 'variance'}).show()
     
     print("\n\n")
 

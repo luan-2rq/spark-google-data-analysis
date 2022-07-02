@@ -5,7 +5,7 @@ from pyspark.sql.types import *
 
 spark = SparkSession.builder.appName('Q4').getOrCreate()
 
-# Importando os dados
+# Caminho dos dados
 path_instance_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/instance_events/*.csv"
 
 #Configurando Schema
@@ -24,20 +24,19 @@ instance_schema = StructType([
 # dataframe com dados dos eventos das tarefas
 df_instance_events = spark.read.csv(path_instance_events, schema = instance_schema, header=True, sep=",") 
 
-##Quantas tarefas são submetidas por hora?
+##### Quantas tarefas são submetidas por hora? #####
 
 tasks_submetidas = df_instance_events.filter(df_instance_events.type == 0)
 tasks_submetidas_count = tasks_submetidas.count()
-print(f"O quantidade de task submetidas eh: {tasks_submetidas_count}\n")
+
+print(f"A quantidade de tarefas submetidas foi: {tasks_submetidas_count}\n")
 
 last_task_submit = df_instance_events.groupby().max('time').collect()[0]['max(time)']
-print(f"O tempo da ultima tarefa submetida foi: {last_task_submit}\n")
 
 first_task_submit = df_instance_events.groupby().min('time').collect()[0]['min(time)']
-print(f"O tempo da primeira tarefa submetida foi: {first_task_submit}\n")
 
 time_interval_tasks = (last_task_submit - first_task_submit)
 
 average_tasks_submited = tasks_submetidas_count / (time_interval_tasks / 3600)
 
-print(f"Average tasks submited per hour: {average_tasks_submited}")
+print(f"Media de tarefas submetidas por hora: {average_tasks_submited}")

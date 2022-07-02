@@ -1,3 +1,4 @@
+from inspect import stack
 import pyspark
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
@@ -7,7 +8,7 @@ import matplotlib.pyplot as plt
 
 spark = SparkSession.builder.appName('Q1').getOrCreate()
 
-# Importando os dados
+# Caminho dos dados
 path_instance_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/instance_events/*.csv"
 
 #Configurando Schema
@@ -29,11 +30,10 @@ df_instance_events = df_instance_events.withColumnRenamed("resource_request.cpus
 df_instance_events = df_instance_events.withColumnRenamed("resource_request.memory", "resource_request_memory")
 df_instance_events = df_instance_events.filter(df_instance_events.type == 3)
 
-#  Como é a requisição de recursos computacionais (memória e CPU) do cluster durante o tempo?
+#####  Como é a requisição de recursos computacionais (memória e CPU) do cluster durante o tempo? #####
+
 min_time = 0
-print(f"Tempo minimo: {min_time}")
 max_time = df_instance_events.agg({'time': 'max'}).collect()[0]['max(time)']
-print(f"Tempo maximo: {max_time}")
 
 n_intervals = 21
 interval = (max_time - min_time) / n_intervals
@@ -43,93 +43,61 @@ memory_request_means_over_time = []
 intervals = []
 
 for i in range(n_intervals):
-    """"
-    print(f"Intervalo Inicial{i}: {(i)*interval}")
-    print(f"Intervalo Final{i+1}: {(i+1)*interval}")
-    print(f"Intervalo Médio: {((((i+1)*interval) + (i*interval)) / 2)}")
-    """
-    #acrescenta a média do intervalo final e o intervalo inicial em horas
-    current_interval = f"Interval {i+1}"
-    intervals.append(current_interval)#((((i+1)*interval) + (i*interval)) / 2) / 3600)
-    #acrescenta o resultado final do agrupamento de uso de CPU baseado no intevalo acima
+    current_interval = f"Intervalo {i+1}"
+    intervals.append(current_interval)
+
     current_cpu_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_cpus': 'avg'}).collect()[0]['avg(resource_request_cpus)']
     current_memory_request_avg = df_instance_events.filter((df_instance_events.time >= (i)*interval) & (df_instance_events.time < (i+1)*interval)).agg({'resource_request_memory': 'avg'}).collect()[0]['avg(resource_request_memory)']
+    
     if current_cpu_request_avg != None:
         cpu_request_means_over_time.append(current_cpu_request_avg)
     else:
         cpu_request_means_over_time.append(0)
-    print(f"Average {len(cpu_request_means_over_time)-1}: {cpu_request_means_over_time[len(cpu_request_means_over_time)-1]}")
+
+    print(f"Media de CPU Request {len(cpu_request_means_over_time)-1}: {cpu_request_means_over_time[len(cpu_request_means_over_time)-1]}")
+
     if current_memory_request_avg != None:
         memory_request_means_over_time.append(current_memory_request_avg)
     else:
         memory_request_means_over_time.append(0)
 
-##Not stacked
-# fig = plt.figure()
-# ax = fig.add_axes([0,0,1,1])
-# ax.set_ylabel('Média de uso de CPU e Memory')
-# ax.set_title('Uso de CPU e Memory do cluster')
-# ax.bar(intervals, cpu_request_means_over_time, color = 'g', width = 0.25)
-# ax.bar(intervals, memory_request_means_over_time, color = 'b', width = 0.25)
-# plt.show()
+    print(f"Media de Memory Request {len(cpu_request_means_over_time)-1}: {cpu_request_means_over_time[len(cpu_request_means_over_time)-1]}")
 
-#Stacked
-# fig = plt.figure()
-# ax = fig.add_axes([0,0,1,1])
-# ax.set_yticks(np.arange(0, 1, 0.05))
-# ax.bar(intervals, cpu_request_means_over_time, width = 0.35, color='g')
-# ax.bar(intervals, memory_request_means_over_time, width = 0.35,bottom=cpu_request_means_over_time, color='b')
-# ax.legend(labels=['CPU', 'Memory'])
-# plt.show()
-
-# x = np.arange(len(intervals))  # the label locations
-# width = 1  # the width of the bars
-
-# fig, ax = plt.subplots()
-
-# rects1 = ax.bar(x, cpu_request_means_over_time, width, label='CPU', color='g')
-# rects2 = ax.bar(x, memory_request_means_over_time, width, label='Memory', bottom=cpu_request_means_over_time, color='b')
-
-# # Add some text for labels, title and custom x-axis tick labels, etc.
-# ax.set_ylabel('CPU and Memory requests average')
-# ax.set_xlabel('Time Intervals')
-# ax.set_title('CPU and Memory Requests Average Over Time')
-# ax.set_xticks(x, intervals)
-# plt.xticks(rotation=90)
-# ax.legend()
-
-# ax.bar_label(rects1, padding=3)
-# ax.bar_label(rects2, padding=3)
+#### Graficos ####
 
 df = pd.DataFrame({ 
     'Intervalos de Tempo': intervals, 
-    'Media(CPU Request)': cpu_request_means_over_time, 
+    'Media(CPU Request)': cpu_request_means_over_time,
     'Media(Memory Request)': memory_request_means_over_time 
 }) 
 
-ax = df.plot(x="Intervalos de Tempo", y="Media(CPU Request)", kind="bar")
-df.plot(x="Intervalos de Tempo", y="Media(Memory Request)", kind="bar", ax=ax, color='orange')
+### Grafico 1 - Stacked Cpu Request and Memory Request ###
+
+width = 0.5
+
+fig, ax = plt.subplots()
+
+ax.bar(intervals, cpu_request_means_over_time, width, label='Média(CPU Request)', color='blue')
+ax.bar(intervals, memory_request_means_over_time, width, bottom=cpu_request_means_over_time,
+       label='Média(Memory Request)', color='orange')
+
+ax.set_ylabel('Médias')
+ax.set_xlabel('Intervalos de Tempo')
+ax.set_title('Média de requisições de CPU e Memoria')
+ax.legend()
+
+plt.xticks(rotation = 90)
 
 plt.show()
-# Make a random dataset:
-# y_pos = np.arange(len(intervals))
 
-# # Create bars
-# plt.barh(y_pos, cpu_request_means_over_time)
+### Grafico 2 - CPU request means ###
 
-# # Create names on the x-axis
-# plt.yticks(y_pos, intervals)
+#ax = df.plot(x="Intervalos de Tempo", y="Media(Memory Request)", kind="bar", color='orange')
+#plt.show()
 
-# # Show graphic
-# plt.show()
+### Grafico 3 - Memory request means ###
 
-# print(cpu_request_means_over_time)
-# print(memory_request_means_over_time)
-# #plotando um gráfico e exibindo o resultado
-# plt.title("Uso de CPU/Memory do cluster")
-# plt.xlabel("Tempo")
-# plt.ylabel("Média de uso de CPU/Memory")
-# plt.plot(interval_average_array, cpu_request_means_over_time, label = "CPU")
-# plt.plot(interval_average_array, memory_request_means_over_time, label = "Memory")
-# plt.show()
+#ax = df.plot(x="Intervalos de Tempo", y="Media(CPU Request)", kind="bar", color='blue')
+#plt.show()
+
 

@@ -1,0 +1,5 @@
+### Q4 Result ###
+
+    A quantidade de tarefas submetidas foi: 76323734
+
+    Media de tarefas submetidas por hora: 127.94976971474402

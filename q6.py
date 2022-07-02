@@ -7,7 +7,7 @@ from pyspark.sql.types import *
 
 spark = SparkSession.builder.appName('Q6').getOrCreate()
 
-# Importando os dados
+# Caminho dos dados
 path_collection_events = "C:/Users/Luan Monteiro/Desktop/Faculdade/spark-google-data-analysis/data/google-traces/collection_events/*.csv"
 
 #Configurando Schema
@@ -25,7 +25,7 @@ collection_schema = StructType([
 df_collection_events = spark.read.csv(path_collection_events, schema=collection_schema, header=True, sep=",")
 
 
-##Quantos eventos de cada tipo são disparados para os jobs?
+##### Quantos eventos de cada tipo são disparados para os jobs? #####
 type_counts = [0]*11
 types = []*11
 
