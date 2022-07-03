@@ -1,4 +1,3 @@
-import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.window import Window
 from pyspark.sql.functions import col, row_number
